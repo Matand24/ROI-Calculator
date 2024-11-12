@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator ROI dla Modułu Non-Stop</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            max-width: 700px;
+            background-color: #f4f6f8;
+            color: #333;
+        }
+        h1 {
+            color: #2d8cf0;
+            font-size: 1.8em;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .container {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+            display: block;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #2d8cf0;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #1b6fc2;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #eef5ff;
+            border: 1px solid #2d8cf0;
+            border-radius: 8px;
+        }
+        .result h2 {
+            color: #2d8cf0;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        .result p {
+            margin: 5px 0;
+            font-size: 1em;
+        }
+        .result h3 {
+            color: #2d8cf0;
+            font-size: 1.1em;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Kalkulator ROI dla Modułu Non-Stop</h1>
+    
+    <div class="container">
+        <label for="lineSpeed">Prędkość linii (produkty na minutę):</label>
+        <input type="number" id="lineSpeed" placeholder="Wprowadź prędkość linii" required>
+
+        <label for="labelsPerRoll">Ilość etykiet na rolce:</label>
+        <input type="number" id="labelsPerRoll" placeholder="Wprowadź ilość etykiet na rolce" required>
+
+        <label for="rollChangeTime">Czas zmiany rolki etykiet (w minutach):</label>
+        <input type="number" id="rollChangeTime" placeholder="Wprowadź czas zmiany rolki" required>
+
+        <label for="productMargin">Marża na produkcie (w jednostkach walutowych):</label>
+        <input type="number" id="productMargin" placeholder="Wprowadź marżę na produkcie" required>
+
+        <label for="moduleCost">Koszt modułu Non-Stop:</label>
+        <input type="number" id="moduleCost" placeholder="Wprowadź koszt modułu" required>
+
+        <button onclick="calculateROI()">Oblicz ROI</button>
+
+        <div id="results" class="result"></div>
+    </div>
+
+    <script>
+        function calculateROI() {
+            // Pobierz wartości wprowadzone przez użytkownika
+            const lineSpeed = parseFloat(document.getElementById('lineSpeed').value);
+            const labelsPerRoll = parseFloat(document.getElementById('labelsPerRoll').value);
+            const rollChangeTime = parseFloat(document.getElementById('rollChangeTime').value);
+            const productMargin = parseFloat(document.getElementById('productMargin').value);
+            const moduleCost = parseFloat(document.getElementById('moduleCost').value);
+
+            // Obliczanie liczby zmian rolek na godzinę
+            const rollChangeInterval = labelsPerRoll / lineSpeed; // czas w minutach, co ile trzeba zmieniać rolkę
+            const changesPerHour = 60 / rollChangeInterval; // ilość zmian rolek na godzinę
+
+            // Obliczanie straty produkcji z powodu zmiany rolek
+            const downtimePerHour = changesPerHour * rollChangeTime; // przestój w minutach na godzinę
+            const lostProductsPerHour = (downtimePerHour / 60) * lineSpeed; // liczba utraconych produktów na godzinę
+            const hourlyProfitLoss = lostProductsPerHour * productMargin; // strata z powodu braku modułu Non-Stop
+
+            // Obliczanie czasu zwrotu inwestycji (w godzinach pracy)
+            const paybackTimeInHours = moduleCost / hourlyProfitLoss; // czas zwrotu w godzinach produkcyjnych
+
+            // Konwersja czasu zwrotu na dni, tygodnie i miesiące
+            const paybackDays = paybackTimeInHours / 8; // przy założeniu 8-godzinnego dnia pracy
+            const paybackWeeks = paybackDays / 5; // przy założeniu 5-dniowego tygodnia pracy
+            const paybackMonths = paybackDays / 22; // przy założeniu 22-dniowego miesiąca pracy
+
+            // Wyświetlanie wyników
+            document.getElementById('results').innerHTML = `
+                <h2>Wyniki Kalkulacji</h2>
+                <p>Częstotliwość zmiany rolek: co ${rollChangeInterval.toFixed(2)} minut</p>
+                <p>Przestoje na godzinę: ${downtimePerHour.toFixed(2)} minut</p>
+                <p>Liczba utraconych produktów na godzinę: ${lostProductsPerHour.toFixed(2)}</p>
+                <p>Strata z tytułu braku modułu Non-Stop (na godzinę): ${hourlyProfitLoss.toFixed(2)} jednostek walutowych</p>
+                <h3>Czas zwrotu inwestycji:</h3>
+                <p>W godzinach pracy: ${paybackTimeInHours.toFixed(2)}</p>
+                <p>W dniach pracy: ${paybackDays.toFixed(2)}</p>
+                <p>W tygodniach pracy: ${paybackWeeks.toFixed(2)}</p>
+                <p>W miesiącach pracy: ${paybackMonths.toFixed(2)}</p>
+            `;
+        }
+    </script>
+
+</body>
+</html>
